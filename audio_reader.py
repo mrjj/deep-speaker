@@ -123,7 +123,7 @@ class AudioReader:
 
         if self.multi_threading:
             num_threads = os.cpu_count()
-            parallel_function(self.dump_audio_to_pkl_cache, ('%i/%i' % (idx, len(audio_files)), file_name) for idx, file_name in enumerate(audio_files), num_threads)
+            parallel_function(self.dump_audio_to_pkl_cache, [('%i/%i' % (idx, len(audio_files)), file_name) for idx, file_name in enumerate(audio_files)], num_threads)
         else:
             bar = tqdm(audio_files)
             for filename in bar:
@@ -131,7 +131,8 @@ class AudioReader:
                 self.dump_audio_to_pkl_cache('%i/%i' % (idx, len(audio_files)), filename)
             bar.close()
 
-    def dump_audio_to_pkl_cache(self, input_filename, log_prefix=''):
+    def dump_audio_to_pkl_cache(self, params):
+        log_prefix, input_filename = params
         try:
             cache_filename = input_filename.split('/')[-1].split('.')[0] + '_cache'
             pkl_filename = os.path.join(self.cache_pkl_dir, cache_filename) + '.pkl'
