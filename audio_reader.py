@@ -139,7 +139,7 @@ class AudioReader:
             if os.path.isfile(pkl_filename):
                 logger.info('[FILE ALREADY EXISTS] {}'.format(pkl_filename))
                 return
-
+            logger.info('[PROCESSING] {}'.format(pkl_filename))
             audio, _ = read_audio_from_filename(input_filename, self.sample_rate)
             energy = np.abs(audio[:, 0])
             silence_threshold = np.percentile(energy, 95)
