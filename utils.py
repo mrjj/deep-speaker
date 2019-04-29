@@ -85,16 +85,17 @@ class InputsGenerator:
 
         logger.info('Generating the unified inputs pkl file.')
         full_inputs = {}
-        for inputs_filename in glob(self.inputs_dir + '/*.pkl', recursive=True):
+        input_files = glob(self.inputs_dir + '/*.pkl', recursive=True)
+        for file_no, inputs_filename in enumerate(sorted(input_files)):
             with open(inputs_filename, 'rb') as r:
                 inputs = pickle.load(r)
-                logger.info('Read {}'.format(inputs_filename))
+                logger.info('{}/{} [READ] {}'.format(file_no, len(input_files), inputs_filename))
             full_inputs[inputs['speaker_id']] = inputs
         full_inputs_output_filename = os.path.join(self.cache_dir, 'full_inputs.pkl')
         # dill can manage with files larger than 4GB.
         with open(full_inputs_output_filename, 'wb') as w:
             dill.dump(obj=full_inputs, file=w)
-        logger.info('[DUMP UNIFIED INPUTS] {}'.format(full_inputs_output_filename))
+        logger.info('{}/{} - [DUMP UNIFIED INPUTS] {}'.format(file_no, len(input_files), full_inputs_output_filename))
 
     def generate_and_dump_inputs_to_pkl(self, speaker_id):
 
