@@ -106,19 +106,18 @@ class InputsGenerator:
 
         output_filename = os.path.join(self.inputs_dir, speaker_id + '.pkl')
         if os.path.isfile(output_filename):
-            logger.info('Inputs file already exists: {}.'.format(output_filename))
+            logger.info('{} - Inputs file already exists: {}.'.format(log_prefix, output_filename))
             return
 
         inputs = self.generate_inputs(speaker_id)
         with open(output_filename, 'wb') as w:
             pickle.dump(obj=inputs, file=w)
-        logger.info('[DUMP INPUTS] {}'.format(output_filename))
+        logger.info('{} - [DUMP INPUTS] {}'.format(log_prefix, output_filename))
 
     def generate_inputs_for_inference(self, speaker_id):
         speaker_cache, metadata = self.audio_reader.load_cache([speaker_id])
         audio_entities = list(speaker_cache.values())
-        logger.info('Generating the inputs necessary for the inference (speaker is {})...'.format(speaker_id))
-        logger.info('This might take a couple of minutes to complete.')
+        logger.info('{} - [GENERATING INFER INPUTS]'.format(speaker_id))
         feat = generate_features(audio_entities, self.max_count_per_class, progress_bar=False)
         mean = np.mean([np.mean(t) for t in feat])
         std = np.mean([np.std(t) for t in feat])
