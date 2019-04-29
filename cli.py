@@ -55,27 +55,27 @@ def main():
 
     if args.regenerate_full_cache:
         regenerate_full_cache(audio_reader, args)
-        exit(1)
+        exit(0)
 
     if args.update_cache:
         audio_reader.build_cache()
-        exit(1)
+        exit(0)
 
     if args.generate_training_inputs:
         generate_cache_from_training_inputs(audio_reader, args)
-        exit(1)
+        exit(0)
 
     if args.unseen_speakers is not None:
         unseen_speakers = [x.strip() for x in args.unseen_speakers.split(',')]
         from unseen_speakers import inference_unseen_speakers
         inference_unseen_speakers(audio_reader, unseen_speakers[0], unseen_speakers[1])
-        exit(1)
+        exit(0)
 
     if args.get_embeddings is not None:
         speaker_id = args.get_embeddings.strip()
         from unseen_speakers import inference_embeddings
         inference_embeddings(audio_reader, speaker_id)
-        exit(1)
+        exit(0)
 
 
 if __name__ == '__main__':
