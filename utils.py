@@ -76,11 +76,11 @@ class InputsGenerator:
         if self.multi_threading:
             num_threads = os.cpu_count()
             logger.info('Using {} threads.'.format(num_threads))
-            parallel_function(self.generate_and_dump_inputs_to_pkl, sorted(self.speaker_ids), num_threads)
+            parallel_function(self.generate_and_dump_inputs_to_pkl, [('%i/%i' % (idx, len(self.speaker_ids)), speaker) for idx, speaker in enumerate(self.speaker_ids)], num_threads)
         else:
             logger.info('Using only 1 thread.')
-            for s in self.speaker_ids:
-                self.generate_and_dump_inputs_to_pkl(s)
+            for speaker_no, s in enumerate(self.speaker_ids):
+                self.generate_and_dump_inputs_to_pkl('%i/%i' % (speaker_no, len(self.speaker_ids)), s)
         from glob import glob
 
         logger.info('Generating the unified inputs pkl file.')
@@ -97,7 +97,8 @@ class InputsGenerator:
             dill.dump(obj=full_inputs, file=w)
         logger.info('{}/{} - [DUMP UNIFIED INPUTS] {}'.format(file_no, len(input_files), full_inputs_output_filename))
 
-    def generate_and_dump_inputs_to_pkl(self, speaker_id):
+    def generate_and_dump_inputs_to_pkl(self, params):
+        log_prefix, speaker_id = params
 
         if speaker_id not in c.AUDIO.SPEAKERS_TRAINING_SET:
             logger.info('Discarding speaker for the training dataset (cf. conf.json): {}.'.format(speaker_id))
