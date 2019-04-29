@@ -115,7 +115,7 @@ class AudioReader:
             os.makedirs(self.cache_pkl_dir)
         logger.info('Nothing found at {}. Generating all the cache now.'.format(self.cache_pkl_dir))
         logger.info('Looking for the audio dataset in {}.'.format(self.audio_dir))
-        audio_files = find_files(self.audio_dir)
+        audio_files = sorted(find_files(self.audio_dir))
         audio_files_count = len(audio_files)
         assert audio_files_count != 0, 'Generate your cache please.'
         logger.info('Found {} files in total in {}.'.format(audio_files_count, self.audio_dir))
@@ -123,23 +123,23 @@ class AudioReader:
 
         if self.multi_threading:
             num_threads = os.cpu_count()
-            parallel_function(self.dump_audio_to_pkl_cache, audio_files, num_threads)
+            parallel_function(self.dump_audio_to_pkl_cache, ('%i/%i' % (idx, len(audio_files)), file_name) for idx, file_name in enumerate(audio_files), num_threads)
         else:
             bar = tqdm(audio_files)
             for filename in bar:
                 bar.set_description(filename)
-                self.dump_audio_to_pkl_cache(filename)
+                self.dump_audio_to_pkl_cache('%i/%i' % (idx, len(audio_files)), filename)
             bar.close()
 
-    def dump_audio_to_pkl_cache(self, input_filename):
+    def dump_audio_to_pkl_cache(self, input_filename, log_prefix=''):
         try:
             cache_filename = input_filename.split('/')[-1].split('.')[0] + '_cache'
             pkl_filename = os.path.join(self.cache_pkl_dir, cache_filename) + '.pkl'
 
             if os.path.isfile(pkl_filename):
-                logger.info('[FILE ALREADY EXISTS] {}'.format(pkl_filename))
+                logger.info('{} - [FILE ALREADY EXISTS] {}'.format(log_prefix, pkl_filename))
                 return
-            logger.info('[PROCESSING] {}'.format(pkl_filename))
+            logger.info('{} - [PROCESSING] {}'.format(log_prefix, pkl_filename))
             audio, _ = read_audio_from_filename(input_filename, self.sample_rate)
             energy = np.abs(audio[:, 0])
             silence_threshold = np.percentile(energy, 95)
@@ -161,7 +161,7 @@ class AudioReader:
 
             with open(pkl_filename, 'wb') as f:
                 pickle.dump(obj, f)
-                logger.info('[DUMP AUDIO] {}'.format(pkl_filename))
+                logger.info('{} - [DUMP AUDIO] {}'.format(log_prefix, pkl_filename))
         # except librosa.util.exceptions.ParameterError as e:
         except Exception as e:
             logger.error(e)
