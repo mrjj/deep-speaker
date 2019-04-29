@@ -162,6 +162,7 @@ class AudioReader:
             with open(pkl_filename, 'wb') as f:
                 pickle.dump(obj, f)
                 logger.info('[DUMP AUDIO] {}'.format(pkl_filename))
-        except librosa.util.exceptions.ParameterError as e:
+        # except librosa.util.exceptions.ParameterError as e:
+        except Exception as e:
             logger.error(e)
             logger.error('[DUMP AUDIO ERROR SKIPPING FILENAME] {}'.format(input_filename))
